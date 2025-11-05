@@ -49,6 +49,7 @@ export class GGDDetector implements BaseDetector {
 class GGDVisitor extends ApexParserBaseVisitor<void> {
   private loopDepth = 0;
   private currentMethodName?: string;
+  private currentMethodContext?: any;
 
   constructor(
     private className: string,
@@ -62,8 +63,9 @@ class GGDVisitor extends ApexParserBaseVisitor<void> {
    * Visit method declarations to track context
    */
   visitMethodDeclaration(ctx: any): void {
-    // Save previous method name to handle nested contexts
+    // Save previous method name and context to handle nested contexts
     const previousMethodName = this.currentMethodName;
+    const previousMethodContext = this.currentMethodContext;
     
     // Try to get method name from id() first
     let methodName: string | undefined;
@@ -90,12 +92,14 @@ class GGDVisitor extends ApexParserBaseVisitor<void> {
     }
     
     this.currentMethodName = methodName;
+    this.currentMethodContext = ctx;
     
     // Continue traversing children - this will visit method body
     this.visitChildren(ctx);
     
-    // Restore previous method name
+    // Restore previous method name and context
     this.currentMethodName = previousMethodName;
+    this.currentMethodContext = previousMethodContext;
   }
 
   /**
@@ -143,7 +147,9 @@ class GGDVisitor extends ApexParserBaseVisitor<void> {
           // Check if the receiver is "Schema" (case-insensitive)
           if (fullExpression && fullExpression.toLowerCase().startsWith("schema.")) {
             const lineNumber = this.getLineNumber(ctx);
-            const codeBefore = fullExpression.trim();
+            
+            // Extract context: 3 lines above and below the detection
+            const codeBefore = this.getContextLines(lineNumber, 3);
             const severity = this.loopDepth > 0 ? Severity.HIGH : Severity.MEDIUM;
 
             this.detections.push({
@@ -170,6 +176,31 @@ class GGDVisitor extends ApexParserBaseVisitor<void> {
   private getLineNumber(ctx: any): number {
     const token = ctx.start;
     return token ? token.line : 1;
+  }
+
+  /**
+   * Extract N lines above and below the detection line for context
+   * @param detectionLine The line number where GGD was detected (1-indexed)
+   * @param contextLines Number of lines to include above and below
+   * @returns The code context as a string
+   */
+  private getContextLines(detectionLine: number, contextLines: number): string {
+    const lines = this.apexCode.split('\n');
+    
+    // Convert to 0-indexed
+    const targetLine = detectionLine - 1;
+    
+    // Calculate range (ensure we don't go out of bounds)
+    const startLine = Math.max(0, targetLine - contextLines);
+    const endLine = Math.min(lines.length - 1, targetLine + contextLines);
+    
+    // Extract the lines
+    const contextLineArray: string[] = [];
+    for (let i = startLine; i <= endLine; i++) {
+      contextLineArray.push(lines[i]);
+    }
+    
+    return contextLineArray.join('\n');
   }
 
 }
