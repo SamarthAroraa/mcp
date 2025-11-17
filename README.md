@@ -188,6 +188,7 @@ These are the available toolsets.
 | `mobile-core` | [A subset of mobile tools focused on essential mobile capabilities.](README.md#mobile-core-toolset)|
 | `aura-experts` | [Tools which provides Aura component analysis, blueprinting, and migration expertise.](README.md#aura-experts-toolset)|
 | `lwc-experts`  | [Tools to assist with LWC development, testing, optimization, and best practices.](README.md#lwc-experts-toolset)|
+| `scale-products` | [Tools for detecting and fixing Apex performance antipatterns.](README.md#scale-products-toolset)|
 
 ## Configure Tools
 
@@ -314,5 +315,9 @@ Orchestrates the complete Aura to LWC migration workflow. Provides end-to-end gu
 
 - `run_code_analyzer` - (NON-GA) Performs a static analysis of your code using Salesforce Code Analyzer. Includes validating that the code conforms to best practices, checking for security vulnerabilities, and identifying possible performance issues.
 - `describe_code_analyzer_rule` - (NON-GA) Gets the description of a Salesforce Code Analyzer rule, including the engine it belongs to, its severity, and associated tags.
+
+### Scale Products Toolset
+
+- `scan_apex_class_for_antipatterns` - (NON-GA) Analyzes Apex class files for performance antipatterns and suggests fixes. It detects Schema.getGlobalDescribe() usage and suggests optimized alternatives, as well as SOQL queries that lack a WHERE clause or LIMIT statement. It differentiates severity levels and finds issues like usage inside loops versus ordinary usage. This package requires an absolute path to the Apex class file.
 
 </details>

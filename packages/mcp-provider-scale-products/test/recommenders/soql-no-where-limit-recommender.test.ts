@@ -53,8 +53,7 @@ describe("SOQLNoWhereLimitRecommender", () => {
     const instruction = recommender.getFixInstruction();
 
     expect(instruction).toContain("CRITICAL");
-    expect(instruction).toContain("HIGH");
-    expect(instruction).toContain("MEDIUM");
+    expect(instruction).toContain("MAJOR");
   });
 
   it("should include governor limits context", () => {
@@ -125,8 +124,7 @@ describe("SOQLNoWhereLimitRecommender", () => {
 
     // Should have examples marked with severity
     expect(instruction).toMatch(/Severity.*CRITICAL/i);
-    expect(instruction).toMatch(/Severity.*HIGH/i);
-    expect(instruction).toMatch(/Severity.*MEDIUM/i);
+    expect(instruction).toMatch(/Severity.*MAJOR/i);
   });
 
   it("should include both good and bad code examples", () => {

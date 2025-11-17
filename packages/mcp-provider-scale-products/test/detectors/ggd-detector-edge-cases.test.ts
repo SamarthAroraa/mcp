@@ -78,7 +78,7 @@ public class TestClass {
 }`;
     const detections = detector.detect("TestClass", apexCode);
     expect(detections.length).toBe(1);
-    expect(detections[0].severity).toBe(Severity.HIGH);
+    expect(detections[0].severity).toBe(Severity.CRITICAL);
   });
 
   it("should detect MEDIUM severity when not in loop", () => {
@@ -90,7 +90,7 @@ public class TestClass {
 }`;
     const detections = detector.detect("TestClass", apexCode);
     expect(detections.length).toBe(1);
-    expect(detections[0].severity).toBe(Severity.MEDIUM);
+    expect(detections[0].severity).toBe(Severity.MAJOR);
   });
 
   it("should handle do-while loops", () => {
@@ -104,7 +104,7 @@ public class TestClass {
 }`;
     const detections = detector.detect("TestClass", apexCode);
     expect(detections.length).toBe(1);
-    expect(detections[0].severity).toBe(Severity.HIGH);
+    expect(detections[0].severity).toBe(Severity.CRITICAL);
   });
 
   it("should handle while loops", () => {
@@ -118,7 +118,7 @@ public class TestClass {
 }`;
     const detections = detector.detect("TestClass", apexCode);
     expect(detections.length).toBe(1);
-    expect(detections[0].severity).toBe(Severity.HIGH);
+    expect(detections[0].severity).toBe(Severity.CRITICAL);
   });
 
   it("should extract method name correctly", () => {

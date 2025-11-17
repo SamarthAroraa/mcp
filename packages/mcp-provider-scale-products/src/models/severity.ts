@@ -3,22 +3,17 @@
  */
 export enum Severity {
   /**
-   * Low severity - minor performance impact
+   * Minor issues - code or styles impact test clarity and efficiency
    */
-  LOW = "low",
+  MINOR = "minor",
 
   /**
-   * Medium severity - noticeable performance impact
+   * Major issues - don't block implementations, but fixing them improves test reliability and maintainability
    */
-  MEDIUM = "medium",
+  MAJOR = "major",
 
   /**
-   * High severity - significant performance impact
-   */
-  HIGH = "high",
-
-  /**
-   * Critical severity - severe performance or functional impact
+   * Critical issues - cause test failure, deployment blockers, and test quality gaps that impact production run time
    */
   CRITICAL = "critical",
 }

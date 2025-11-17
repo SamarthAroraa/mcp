@@ -50,8 +50,8 @@ describe("GGDRecommender", () => {
     const instruction = recommender.getFixInstruction();
 
     expect(instruction).toContain("Best Practices");
-    expect(instruction).toContain("HIGH");
-    expect(instruction).toContain("MEDIUM");
+    expect(instruction).toContain("CRITICAL");
+    expect(instruction).toContain("MAJOR");
     expect(instruction).toContain("loop");
   });
 

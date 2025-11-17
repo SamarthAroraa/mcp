@@ -32,7 +32,7 @@ public class TestClass {
       expect(detections).toHaveLength(1);
       expect(detections[0].className).toBe('TestClass');
       expect(detections[0].methodName).toBe('testMethod');
-      expect(detections[0].severity).toBe(Severity.MEDIUM);
+      expect(detections[0].severity).toBe(Severity.MAJOR);
       expect(detections[0].codeBefore).toContain('SELECT');
       expect(detections[0].lineNumber).toBeGreaterThan(0);
       
@@ -128,7 +128,7 @@ public class TestClass {
       const detections = detector.detect('TestClass', apexCode);
 
       expect(detections).toHaveLength(1);
-      expect(detections[0].severity).toBe(Severity.HIGH);
+      expect(detections[0].severity).toBe(Severity.CRITICAL);
       const metadata = detections[0].metadata as SOQLUnusedFieldsMetadata;
       expect(metadata.isInLoop).toBe(true);
       expect(metadata.unusedFields).toContain('Phone');
@@ -148,7 +148,7 @@ public class TestClass {
       const detections = detector.detect('TestClass', apexCode);
 
       expect(detections).toHaveLength(1);
-      expect(detections[0].severity).toBe(Severity.HIGH);
+      expect(detections[0].severity).toBe(Severity.CRITICAL);
       const metadata = detections[0].metadata as SOQLUnusedFieldsMetadata;
       expect(metadata.isInLoop).toBe(true);
     });
@@ -169,7 +169,7 @@ public class TestClass {
       const detections = detector.detect('TestClass', apexCode);
 
       expect(detections).toHaveLength(1);
-      expect(detections[0].severity).toBe(Severity.HIGH);
+      expect(detections[0].severity).toBe(Severity.CRITICAL);
     });
 
     it('should handle for-each SOQL loops with unused fields', () => {
@@ -185,7 +185,7 @@ public class TestClass {
       const detections = detector.detect('TestClass', apexCode);
 
       expect(detections).toHaveLength(1);
-      expect(detections[0].severity).toBe(Severity.HIGH);
+      expect(detections[0].severity).toBe(Severity.CRITICAL);
       const metadata = detections[0].metadata as SOQLUnusedFieldsMetadata;
       expect(metadata.unusedFields).toContain('LastName');
       expect(metadata.unusedFields).toContain('Email');

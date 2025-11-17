@@ -46,8 +46,8 @@ describe('SOQLUnusedFieldsRecommender', () => {
     it('should include severity context', () => {
       const instruction = recommender.getFixInstruction();
 
-      expect(instruction).toContain('HIGH');
-      expect(instruction).toContain('MEDIUM');
+      expect(instruction).toContain('CRITICAL');
+      expect(instruction).toContain('MAJOR');
     });
 
     it('should include performance impact guidance', () => {
@@ -111,7 +111,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, Industry FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone', 'Industry'],
           originalFields: ['Id', 'Name', 'Phone', 'Industry'],
@@ -143,7 +143,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account WHERE Name != null LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -171,7 +171,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account ORDER BY Name ASC LIMIT 10]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -199,7 +199,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, (SELECT Id FROM Contacts) FROM Account]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -225,7 +225,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Id', 'Name'],
           originalFields: ['Id', 'Name'],
@@ -251,7 +251,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Name', 'Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -281,7 +281,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
           methodName: 'method1',
           lineNumber: 5,
           codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-          severity: Severity.MEDIUM,
+          severity: Severity.MAJOR,
           metadata: {
             unusedFields: ['Phone'],
             originalFields: ['Id', 'Name', 'Phone'],
@@ -299,7 +299,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
           methodName: 'method2',
           lineNumber: 10,
           codeBefore: '[SELECT Id, FirstName, LastName, Email FROM Contact LIMIT 1]',
-          severity: Severity.HIGH,
+          severity: Severity.CRITICAL,
           metadata: {
             unusedFields: ['Email'],
             originalFields: ['Id', 'FirstName', 'LastName', 'Email'],
@@ -320,11 +320,11 @@ describe('SOQLUnusedFieldsRecommender', () => {
       
       const instance1 = result.detectedInstances[0];
       expect(instance1.codeAfter).not.toContain('Phone');
-      expect(instance1.severity).toBe(Severity.MEDIUM);
+      expect(instance1.severity).toBe(Severity.MAJOR);
       
       const instance2 = result.detectedInstances[1];
       expect(instance2.codeAfter).not.toContain('Email');
-      expect(instance2.severity).toBe(Severity.HIGH);
+      expect(instance2.severity).toBe(Severity.CRITICAL);
     });
 
     it('should preserve all detection metadata', () => {
@@ -333,7 +333,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -355,7 +355,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
       expect(instance.lineNumber).toBe(5);
       expect(instance.codeBefore).toBeDefined();
       expect(instance.codeAfter).toBeDefined();
-      expect(instance.severity).toBe(Severity.MEDIUM);
+      expect(instance.severity).toBe(Severity.MAJOR);
       expect(instance.metadata).toBeDefined();
       const metadata = instance.metadata as SOQLUnusedFieldsMetadata;
       expect(metadata.unusedFields).toEqual(['Phone']);
@@ -370,7 +370,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -411,7 +411,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, FirstName, Account.Name, Account.Phone FROM Contact LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Account.Phone'],
           originalFields: ['Id', 'FirstName', 'Account.Name', 'Account.Phone'],
@@ -438,7 +438,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, CustomField__c, AnotherField__c FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['CustomField__c'],
           originalFields: ['Id', 'Name', 'CustomField__c', 'AnotherField__c'],
@@ -465,7 +465,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Apttus_Proposal__Primary__c, SfdcQuoteStatus__c FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['SfdcQuoteStatus__c'],
           originalFields: ['Id', 'Name', 'Apttus_Proposal__Primary__c', 'SfdcQuoteStatus__c'],
@@ -494,7 +494,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -510,7 +510,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
 
       const result = recommender.recommend([detection]);
 
-      expect(result.detectedInstances[0].severity).toBe(Severity.MEDIUM);
+      expect(result.detectedInstances[0].severity).toBe(Severity.MAJOR);
     });
 
     it('should preserve HIGH severity for loop context', () => {
@@ -519,7 +519,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.HIGH,
+        severity: Severity.CRITICAL,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -535,7 +535,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
 
       const result = recommender.recommend([detection]);
 
-      expect(result.detectedInstances[0].severity).toBe(Severity.HIGH);
+      expect(result.detectedInstances[0].severity).toBe(Severity.CRITICAL);
     });
   });
 
@@ -546,7 +546,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'processBatch',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, Fax, Website, Industry, AnnualRevenue FROM Account WHERE Id IN :ids]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone', 'Fax', 'Website', 'AnnualRevenue'],
           originalFields: ['Id', 'Name', 'Phone', 'Fax', 'Website', 'Industry', 'AnnualRevenue'],
@@ -577,7 +577,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'validateContact',
         lineNumber: 5,
         codeBefore: '[SELECT Id, FirstName, LastName, Email, Phone, Title, Department FROM Contact WHERE Id = :id]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone', 'Title', 'Department'],
           originalFields: ['Id', 'FirstName', 'LastName', 'Email', 'Phone', 'Title', 'Department'],
@@ -610,7 +610,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -637,7 +637,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -676,7 +676,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata,
       };
 
@@ -694,7 +694,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, Fax, Website, Industry FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone', 'Fax', 'Website'],
           originalFields: ['Id', 'Name', 'Phone', 'Fax', 'Website', 'Industry'],
@@ -724,7 +724,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account WHERE Id IN :accountIds]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -751,7 +751,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, Industry FROM Account ORDER BY Name ASC, Industry DESC]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone', 'Industry'],
@@ -777,7 +777,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account WHERE (Name LIKE \'%Test%\' OR Industry = \'Tech\') AND AnnualRevenue > 1000000]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -804,7 +804,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account ORDER BY Name NULLS FIRST]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -832,7 +832,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account FOR REFERENCE]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -860,7 +860,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, Fax, Website, Industry, AnnualRevenue, NumberOfEmployees, Description, Type, Rating, Ownership, TickerSymbol, Site FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone', 'Fax', 'Website', 'AnnualRevenue', 'NumberOfEmployees', 'Description', 'Type', 'Rating', 'Ownership', 'TickerSymbol', 'Site'],
           originalFields: ['Id', 'Name', 'Phone', 'Fax', 'Website', 'Industry', 'AnnualRevenue', 'NumberOfEmployees', 'Description', 'Type', 'Rating', 'Ownership', 'TickerSymbol', 'Site'],
@@ -889,7 +889,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, Industry FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone', 'Industry'],
@@ -917,7 +917,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Account.Owner.Name, Account.Owner.Email FROM Contact LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Account.Owner.Email'],
           originalFields: ['Id', 'Name', 'Account.Owner.Name', 'Account.Owner.Email'],
@@ -946,7 +946,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone, CustomField__c, AnotherCustom__c FROM Account LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone', 'AnotherCustom__c'],
           originalFields: ['Id', 'Name', 'Phone', 'CustomField__c', 'AnotherCustom__c'],
@@ -975,7 +975,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, (SELECT Id FROM Contacts) FROM Account]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Name'],
           originalFields: ['Id', 'Name'],
@@ -1004,7 +1004,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Phone FROM Account LIMIT 50000]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Phone'],
           originalFields: ['Id', 'Name', 'Phone'],
@@ -1031,7 +1031,7 @@ describe('SOQLUnusedFieldsRecommender', () => {
         methodName: 'testMethod',
         lineNumber: 5,
         codeBefore: '[SELECT Id, Name, Field_1__c, Field_2__c, Field_3__c FROM CustomObject__c LIMIT 1]',
-        severity: Severity.MEDIUM,
+        severity: Severity.MAJOR,
         metadata: {
           unusedFields: ['Field_2__c', 'Field_3__c'],
           originalFields: ['Id', 'Name', 'Field_1__c', 'Field_2__c', 'Field_3__c'],

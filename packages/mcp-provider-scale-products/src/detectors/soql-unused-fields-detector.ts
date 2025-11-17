@@ -92,7 +92,7 @@ export class SOQLUnusedFieldsDetector implements BaseDetector {
             methodName: soql.methodName,
             lineNumber: soql.lineNumber,
             codeBefore: this.formatQueryForDisplay(soql.query),
-            severity: soql.isInLoop ? Severity.HIGH : Severity.MEDIUM,
+            severity: soql.isInLoop ? Severity.CRITICAL : Severity.MAJOR,
             metadata,
           });
         }

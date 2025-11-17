@@ -144,7 +144,7 @@ class GGDVisitor extends ApexParserBaseVisitor<void> {
           if (fullExpression && fullExpression.toLowerCase().startsWith("schema.")) {
             const lineNumber = this.getLineNumber(ctx);
             const codeBefore = fullExpression.trim();
-            const severity = this.loopDepth > 0 ? Severity.HIGH : Severity.MEDIUM;
+            const severity = this.loopDepth > 0 ? Severity.CRITICAL : Severity.MAJOR;
 
             this.detections.push({
               className: this.className,

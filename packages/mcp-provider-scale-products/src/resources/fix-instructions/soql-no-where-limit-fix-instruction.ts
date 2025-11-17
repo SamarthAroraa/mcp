@@ -87,7 +87,7 @@ public class AccountProcessor {
 ---
 
 ## Antipattern 2: No WHERE and No LIMIT (Standard Objects)
-**Severity: HIGH**
+**Severity: CRITICAL**
 
 ### Problem
 Queries on standard objects without any filtering or limits can retrieve tens of thousands of records, hitting the 50,000 row governor limit and causing heap size exceptions.
@@ -96,7 +96,7 @@ Queries on standard objects without any filtering or limits can retrieve tens of
 \`\`\`apex
 public class ContactExporter {
     public void exportAllContacts() {
-        // ❌ HIGH: No WHERE, no LIMIT on standard object
+        // ❌ CRITICAL: No WHERE, no LIMIT on standard object
         // Could retrieve all 100,000+ contacts in the org
         List<Contact> contacts = [
             SELECT Id, FirstName, LastName, Email 
@@ -159,7 +159,7 @@ public class ContactExporter {
 ---
 
 ## Antipattern 3: Nested Queries Without Main Query Filter
-**Severity: HIGH**
+**Severity: CRITICAL**
 
 ### Problem
 Nested queries (subqueries) without filtering on the main query can retrieve all parent records, even if the subquery is filtered. The outer query drives the volume.
@@ -167,7 +167,7 @@ Nested queries (subqueries) without filtering on the main query can retrieve all
 ### Example of Antipattern
 \`\`\`apex
 public void getAccountsWithContacts() {
-    // ❌ HIGH: Nested query without main WHERE/LIMIT
+    // ❌ CRITICAL: Nested query without main WHERE/LIMIT
     // Retrieves ALL accounts (even those with no contacts)
     List<Account> accounts = [
         SELECT Id, Name,
@@ -205,7 +205,7 @@ public void getAccountsWithContacts() {
 ---
 
 ## Antipattern 4: Metadata Queries Without Specific Filter
-**Severity: MEDIUM**
+**Severity: MAJOR**
 
 ### Problem
 Custom metadata and custom settings queries without filtering can retrieve all records, though typically these contain fewer records than standard objects. Still, it's a best practice to filter by DeveloperName.
@@ -214,7 +214,7 @@ Custom metadata and custom settings queries without filtering can retrieve all r
 \`\`\`apex
 public class ConfigurationManager {
     public Integer getCacheTTL() {
-        // ❌ MEDIUM: Metadata query without filter
+        // ❌ MAJOR: Metadata query without filter
         // Retrieves all CacheTTL__mdt records when you only need one
         List<CacheTTL__mdt> ttlRecords = [
             SELECT StoreCacheTTL__c 
@@ -254,7 +254,7 @@ public class ConfigurationManager {
 ---
 
 ## Antipattern 5: Query Where Only First Record is Used
-**Severity: MEDIUM**
+**Severity: MAJOR**
 
 ### Problem
 Retrieving all records when only the first one is used wastes resources and can still hit governor limits.
@@ -262,7 +262,7 @@ Retrieving all records when only the first one is used wastes resources and can 
 ### Example of Antipattern
 \`\`\`apex
 public void getLatestOpportunity() {
-    // ❌ MEDIUM: No LIMIT when only first record is used
+    // ❌ MAJOR: No LIMIT when only first record is used
     List<Opportunity> opps = [
         SELECT Id, Name, Amount 
         FROM Opportunity 
@@ -315,9 +315,7 @@ public void getLatestOpportunity() {
 
 For each detected instance:
 1. **Examine the \`severity\` field**:
-   - **CRITICAL**: In a loop - apply Antipattern 1 fix, add strict LIMIT or refactor
-   - **HIGH**: No WHERE and no LIMIT - apply Antipattern 2 fix, add both clauses
-   - **MEDIUM**: Metadata or single-record pattern - apply Antipattern 4 or 5 fix
+   - **CRITICAL**: Deployment blocker - apply appropriate fix immediately, add strict LIMIT or refactor
 
 2. **Review the \`codeBefore\` field** to understand query context
 

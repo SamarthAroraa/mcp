@@ -16,7 +16,7 @@ Schema.getGlobalDescribe() is a computationally expensive operation that retriev
 ---
 
 ## Antipattern 1: Schema.getGlobalDescribe() Inside a Loop
-**Severity: HIGH/CRITICAL**
+**Severity: CRITICAL**
 
 ### Problem
 Calling \`Schema.getGlobalDescribe()\` inside a loop causes repeated retrieval of all SObject metadata, leading to severe performance overhead.
@@ -100,7 +100,7 @@ Cache the result of \`Schema.getGlobalDescribe()\` outside the loop and reuse it
 ---
 
 ## Antipattern 2: Multiple Schema.getGlobalDescribe() Calls Within a Class/Method
-**Severity: MEDIUM**
+**Severity: MAJOR**
 
 ### Problem
 Multiple calls to \`Schema.getGlobalDescribe()\` within the same method or class result in redundant schema retrieval, wasting CPU and potentially hitting governor limits.
@@ -159,7 +159,7 @@ public void processObject(String objectName) {
 ---
 
 ## Antipattern 3: Inefficient Usage for Known SObjects
-**Severity: MEDIUM**
+**Severity: MAJOR**
 
 ### Problem
 Using \`Schema.getGlobalDescribe()\` to retrieve metadata for a single known SObject is inefficient. It retrieves metadata for **all** SObjects when you only need one.
@@ -206,8 +206,8 @@ if (objType != null) {
 
 For each detected instance:
 1. Examine the \`severity\` field:
-   - **HIGH**: Inside a loop - apply Antipattern 1 fix immediately
-   - **MEDIUM**: Multiple calls or known SObject - apply Antipattern 2 or 3 fix
+   - **CRITICAL**: Inside a loop - apply Antipattern 1 fix immediately (deployment blocker)
+   - **MAJOR**: Multiple calls or known SObject - apply Antipattern 2 or 3 fix
 2. Review the \`codeBefore\` field to understand the context
 3. Identify if the SObject type is known at compile time or dynamic
 4. Choose the appropriate solution pattern from above

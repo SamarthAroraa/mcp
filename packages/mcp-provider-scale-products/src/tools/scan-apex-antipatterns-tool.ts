@@ -106,13 +106,11 @@ export class ScanApexAntipatternsTool extends McpTool<InputArgsShape, OutputArgs
     return {
       title: "Scan Apex Class for Antipatterns",
       description: 
-        "Analyzes an Apex class file for performance antipatterns and provides " +
-        "recommendations for fixing them. Currently detects: " +
-        "1) Schema.getGlobalDescribe() usage with optimized alternatives " +
-        "2) SOQL queries without WHERE or LIMIT clauses " +
-        "3) SOQL queries with unused fields (with fix generation). " +
-        "Distinguishes between different severity levels (e.g., usage in loops vs. ordinary usage). " +
-        "Requires an absolute path to the Apex class file.",
+        "Analyzes Apex class files for performance antipatterns and suggests fixes. " +
+        "It detects Schema.getGlobalDescribe() usage and suggests optimized alternatives, " +
+        "as well as SOQL queries that lack a WHERE clause or LIMIT statement. " +
+        "It differentiates severity levels and finds issues like usage inside loops versus ordinary usage. " +
+        "This package requires an absolute path to the Apex class file.",
       inputSchema: scanApexInputSchema.shape,
       outputSchema: undefined,
       annotations: {

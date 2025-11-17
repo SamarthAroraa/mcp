@@ -132,7 +132,7 @@ export class SoqlInLoopDetector implements BaseDetector {
           methodName: this.extractMethodName(lines, lineIndex),
           lineNumber: lineIndex + 1,
           codeBefore: line.trim(),
-          severity: Severity.HIGH,
+          severity: Severity.CRITICAL,
         });
       }
     }
@@ -284,7 +284,7 @@ public class TestClass {
     const detections = detector.detect("TestClass", apexCode);
     
     expect(detections.length).toBe(1);
-    expect(detections[0].severity).toBe(Severity.HIGH);
+    expect(detections[0].severity).toBe(Severity.CRITICAL);
   });
 
   it("should not detect SOQL outside loop", () => {
@@ -351,7 +351,7 @@ Update the README.md to document your new antipattern:
 ```markdown
 #### SOQL in Loop
 Detects SOQL queries inside loops which can hit governor limits.
-- **HIGH**: Any SOQL query inside a loop construct
+- **CRITICAL**: Any SOQL query inside a loop construct (deployment blocker)
 
 Provides recommendations to collect IDs and query outside the loop.
 ```
