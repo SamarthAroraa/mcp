@@ -143,7 +143,7 @@ class GGDVisitor extends ApexParserBaseVisitor<void> {
           // Check if the receiver is "Schema" (case-insensitive)
           if (fullExpression && fullExpression.toLowerCase().startsWith("schema.")) {
             const lineNumber = this.getLineNumber(ctx);
-            const codeBefore = fullExpression.trim();
+            const codeBefore = this.extractContextLines(lineNumber, 3, 3);
             const severity = this.loopDepth > 0 ? Severity.CRITICAL : Severity.MAJOR;
 
             this.detections.push({
@@ -170,6 +170,30 @@ class GGDVisitor extends ApexParserBaseVisitor<void> {
   private getLineNumber(ctx: any): number {
     const token = ctx.start;
     return token ? token.line : 1;
+  }
+
+  /**
+   * Extract context lines around the target line
+   * @param targetLine - The line number (1-based) where the antipattern is
+   * @param precedingLines - Number of lines before the target line
+   * @param followingLines - Number of lines after the target line
+   * @returns Formatted string with line numbers and context
+   */
+  private extractContextLines(targetLine: number, precedingLines: number, followingLines: number): string {
+    const lines = this.apexCode.split('\n');
+    const startLine = Math.max(0, targetLine - precedingLines - 1);
+    const endLine = Math.min(lines.length, targetLine + followingLines);
+    
+    const contextLines = lines.slice(startLine, endLine);
+    
+    // Format with line numbers for better readability
+    return contextLines
+      .map((line, index) => {
+        const lineNum = startLine + index + 1;
+        const marker = lineNum === targetLine ? '→ ' : '  ';
+        return `${marker}${lineNum}: ${line}`;
+      })
+      .join('\n');
   }
 
 }

@@ -11,8 +11,10 @@ import type {
  * Information about a SOQL query found in Apex code
  */
 export interface SOQLQueryInfo {
-  /** The full SOQL query text */
+  /** The full SOQL query text (compressed by AST) */
   query: string;
+  /** The original query text from source code (preserves formatting) */
+  originalQueryText: string;
   /** Line number where the query starts (1-based) */
   lineNumber: number;
   /** Line number where the query ends (1-based) */
@@ -206,6 +208,9 @@ class SOQLExtractorVisitor extends ApexParserBaseVisitor<void> {
     const lineNumber = this.getLineNumber(ctx);
     const endLineNumber = this.getEndLineNumber(ctx);
     
+    // Extract original query text from source code to preserve formatting
+    const originalQueryText = this.extractOriginalQueryText(lineNumber, endLineNumber);
+    
     // Check for WHERE and LIMIT using AST structure, not regex!
     // ctx.getText() compresses whitespace, breaking word boundary regex
     const hasWhere = this.hasWhereInQuery(ctx);
@@ -213,6 +218,7 @@ class SOQLExtractorVisitor extends ApexParserBaseVisitor<void> {
     
     this.queries.push({
       query: queryText,
+      originalQueryText,
       lineNumber,
       endLineNumber,
       methodName: this.currentMethodName,
@@ -283,6 +289,15 @@ class SOQLExtractorVisitor extends ApexParserBaseVisitor<void> {
   private getEndLineNumber(ctx: any): number {
     const token = ctx.stop;
     return token ? token.line : this.getLineNumber(ctx);
+  }
+
+  /**
+   * Extract original query text from source code preserving formatting
+   */
+  private extractOriginalQueryText(startLine: number, endLine: number): string {
+    const lines = this.apexCode.split('\n');
+    const queryLines = lines.slice(startLine - 1, endLine);
+    return queryLines.join(' ').trim();
   }
 }
 
@@ -477,6 +492,35 @@ export class SOQLParser {
     const pattern = /FROM\s+(\w+)/i;
     const match = soqlText.match(pattern);
     return match ? match[1] : null;
+  }
+
+  /**
+   * Format SOQL query for display: normalize whitespace and truncate if needed
+   * For queries > 500 chars, shows first 200 + '...' + last 200 chars
+   * 
+   * @param query - The SOQL query string
+   * @param maxLength - Maximum length (default: 200)
+   * @returns Formatted query with '...' if truncated
+   */
+  public static formatQueryForDisplay(query: string, maxLength: number = 200): string {
+    const ELLIPSIS = '...';
+    const ELLIPSIS_LENGTH = ELLIPSIS.length;
+    const LONG_THRESHOLD = 500;
+    const EDGE_LENGTH = 200;
+    
+    const cleaned = query.replace(/\s+/g, ' ').trim();
+    
+    if (cleaned.length > LONG_THRESHOLD) {
+      const start = cleaned.substring(0, EDGE_LENGTH);
+      const end = cleaned.substring(cleaned.length - EDGE_LENGTH);
+      return start + ELLIPSIS + end;
+    }
+    
+    if (cleaned.length > maxLength) {
+      return cleaned.substring(0, maxLength - ELLIPSIS_LENGTH) + ELLIPSIS;
+    }
+    
+    return cleaned;
   }
 }
 

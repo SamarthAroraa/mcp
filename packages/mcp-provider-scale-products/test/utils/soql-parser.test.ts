@@ -460,6 +460,158 @@ describe('SOQLParser', () => {
     });
   });
 
+  describe('formatQueryForDisplay', () => {
+    it('should normalize whitespace in simple query', () => {
+      const query = 'SELECT   Id,    Name   FROM Account';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe('SELECT Id, Name FROM Account');
+    });
+
+    it('should collapse newlines into single spaces', () => {
+      const query = 'SELECT Id,\n  Name,\n  Phone\nFROM Account\nWHERE Name != null';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe('SELECT Id, Name, Phone FROM Account WHERE Name != null');
+      expect(formatted).not.toContain('\n');
+    });
+
+    it('should collapse tabs and mixed whitespace', () => {
+      const query = 'SELECT\t\tId,\t Name  \t FROM\tAccount';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe('SELECT Id, Name FROM Account');
+    });
+
+    it('should trim leading and trailing whitespace', () => {
+      const query = '   SELECT Id FROM Account   ';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe('SELECT Id FROM Account');
+    });
+
+    it('should truncate long queries at default 200 chars', () => {
+      const query = 'SELECT Id, Name, Phone, Email, Website, Industry, AnnualRevenue, NumberOfEmployees, BillingStreet, BillingCity, BillingState, BillingPostalCode, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode FROM Account WHERE Name != null';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted.length).toBe(200);
+      expect(formatted.endsWith('...')).toBe(true);
+    });
+
+    it('should show first 200 and last 200 chars for very long queries (>500 chars)', () => {
+      // Create a query longer than 500 characters
+      const longQuery = 'SELECT Id, Name, Phone, Email, Website, Industry, AnnualRevenue, NumberOfEmployees, BillingStreet, BillingCity, BillingState, BillingPostalCode, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, Description, Type, Rating, Ownership, ParentId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp, LastActivityDate, LastViewedDate, LastReferencedDate, Jigsaw, JigsawCompanyId, AccountSource, SicDesc FROM Account WHERE Name != null AND Industry = \'Technology\' AND AnnualRevenue > 1000000 ORDER BY Name ASC LIMIT 100';
+      
+      expect(longQuery.length).toBeGreaterThan(500);
+      
+      const formatted = SOQLParser.formatQueryForDisplay(longQuery);
+      
+      // Should be exactly 403 chars: 200 + 3 (ellipsis) + 200
+      expect(formatted.length).toBe(403);
+      expect(formatted.includes('...')).toBe(true);
+      
+      // Should start with the beginning of the query
+      expect(formatted.startsWith('SELECT Id, Name, Phone')).toBe(true);
+      
+      // Should end with the end of the query
+      expect(formatted.endsWith('ORDER BY Name ASC LIMIT 100')).toBe(true);
+      
+      // Ellipsis should be in the middle, not at the end
+      expect(formatted.endsWith('...')).toBe(false);
+    });
+
+    it('should truncate at custom maxLength', () => {
+      const query = 'SELECT Id, Name, Phone FROM Account WHERE Name != null';
+      const formatted = SOQLParser.formatQueryForDisplay(query, 30);
+
+      expect(formatted.length).toBe(30);
+      expect(formatted.endsWith('...')).toBe(true);
+      expect(formatted).toBe('SELECT Id, Name, Phone FROM...');
+    });
+
+    it('should not truncate queries shorter than maxLength', () => {
+      const query = 'SELECT Id FROM Account';
+      const formatted = SOQLParser.formatQueryForDisplay(query, 100);
+
+      expect(formatted).toBe('SELECT Id FROM Account');
+      expect(formatted).not.toContain('...');
+    });
+
+    it('should not truncate queries exactly at maxLength', () => {
+      const query = 'SELECT Id FROM Account'; // 22 chars
+      const formatted = SOQLParser.formatQueryForDisplay(query, 22);
+
+      expect(formatted).toBe('SELECT Id FROM Account');
+      expect(formatted).not.toContain('...');
+    });
+
+    it('should handle empty query', () => {
+      const query = '';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe('');
+    });
+
+    it('should handle query with only whitespace', () => {
+      const query = '   \n\t   ';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe('');
+    });
+
+    it('should handle complex multi-line query', () => {
+      const query = `SELECT Id, Name, Phone
+        FROM Account
+        WHERE (Industry = 'Tech' OR Industry = 'Finance')
+        AND AnnualRevenue > 1000000
+        ORDER BY Name ASC
+        LIMIT 100`;
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe("SELECT Id, Name, Phone FROM Account WHERE (Industry = 'Tech' OR Industry = 'Finance') AND AnnualRevenue > 1000000 ORDER BY Name ASC LIMIT 100");
+    });
+
+    it('should preserve single spaces between words', () => {
+      const query = 'SELECT Id FROM Account WHERE Name = \'Test Value\'';
+      const formatted = SOQLParser.formatQueryForDisplay(query);
+
+      expect(formatted).toBe("SELECT Id FROM Account WHERE Name = 'Test Value'");
+    });
+
+    it('should handle nested subqueries', () => {
+      const query = 'SELECT Id, (SELECT Name FROM Contacts) FROM Account';
+      const formatted = SOQLParser.formatQueryForDisplay(query, 200);
+
+      expect(formatted).toBe('SELECT Id, (SELECT Name FROM Contacts) FROM Account');
+    });
+
+    it('should calculate truncation correctly accounting for ellipsis length', () => {
+      const query = '12345678901234567890'; // exactly 20 chars
+      const formatted = SOQLParser.formatQueryForDisplay(query, 10);
+
+      expect(formatted.length).toBe(10);
+      expect(formatted).toBe('1234567...');
+    });
+
+    it('should handle very small maxLength', () => {
+      const query = 'SELECT Id FROM Account';
+      const formatted = SOQLParser.formatQueryForDisplay(query, 5);
+
+      expect(formatted.length).toBe(5);
+      expect(formatted).toBe('SE...');
+    });
+
+    it('should handle maxLength smaller than ellipsis (edge case)', () => {
+      const query = 'SELECT Id FROM Account';
+      const formatted = SOQLParser.formatQueryForDisplay(query, 2);
+
+      // Edge case: maxLength is 2, ellipsis is 3
+      // substring(0, -1) in JavaScript returns empty string, then we add '...'
+      expect(formatted).toBe('...');
+      expect(formatted.length).toBe(3);
+    });
+  });
+
   describe('extractObjectName', () => {
     it('should extract simple object name', () => {
       const soql = '[SELECT Id FROM Account]';

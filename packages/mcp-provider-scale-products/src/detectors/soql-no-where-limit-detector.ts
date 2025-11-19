@@ -2,7 +2,7 @@ import { BaseDetector } from "./base-detector.js";
 import { DetectedAntipattern } from "../models/detection-result.js";
 import { AntipatternType } from "../models/antipattern-type.js";
 import { Severity } from "../models/severity.js";
-import { SOQLAstUtils } from "../utils/soql-ast-utils.js";
+import { SOQLAstUtils, SOQLParser } from "../utils/soql-ast-utils.js";
 
 /**
  * AST-based detector for SOQL queries without WHERE or LIMIT clauses
@@ -36,7 +36,7 @@ export class SOQLNoWhereLimitDetector implements BaseDetector {
       
       for (const queryInfo of soqlQueries) {
         if (!queryInfo.hasWhere && !queryInfo.hasLimit) {
-          const codeBefore = this.extractCodeLine(apexCode, queryInfo.lineNumber);
+          const codeBefore = SOQLParser.formatQueryForDisplay(queryInfo.originalQueryText);
 
           detections.push({
             className,
@@ -52,20 +52,5 @@ export class SOQLNoWhereLimitDetector implements BaseDetector {
     }
 
     return detections;
-  }
-
-  /**
-   * Extract a specific line from the code for reporting
-   * 
-   * @param apexCode - Full source code
-   * @param lineNumber - Line number (1-based)
-   * @returns The line of code at the specified line number
-   */
-  private extractCodeLine(apexCode: string, lineNumber: number): string {
-    const lines = apexCode.split('\n');
-    if (lineNumber > 0 && lineNumber <= lines.length) {
-      return lines[lineNumber - 1].trim();
-    }
-    return '';
   }
 }

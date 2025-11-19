@@ -29,6 +29,7 @@ import type {
  */
 interface SOQLQueryInfo {
   query: string;
+  originalQueryText: string;
   lineNumber: number;
   endLineNumber: number;
   methodName?: string;
@@ -91,7 +92,7 @@ export class SOQLUnusedFieldsDetector implements BaseDetector {
             className,
             methodName: soql.methodName,
             lineNumber: soql.lineNumber,
-            codeBefore: this.formatQueryForDisplay(soql.query),
+            codeBefore: SOQLParser.formatQueryForDisplay(soql.originalQueryText),
             severity: soql.isInLoop ? Severity.CRITICAL : Severity.MAJOR,
             metadata,
           });
@@ -103,17 +104,6 @@ export class SOQLUnusedFieldsDetector implements BaseDetector {
       console.error(`Error detecting unused fields in ${className}:`, error);
       return [];
     }
-  }
-
-  /**
-   * Format query for display (truncate if too long)
-   */
-  private formatQueryForDisplay(query: string): string {
-    const cleaned = query.replace(/\s+/g, ' ').trim();
-    if (cleaned.length > 200) {
-      return cleaned.substring(0, 197) + '...';
-    }
-    return cleaned;
   }
 
   /**
@@ -453,6 +443,9 @@ class SOQLUnusedFieldsVisitor extends ApexParserBaseVisitor<void> {
     const lineNumber = this.getLineNumber(ctx);
     const endLineNumber = this.getEndLineNumber(ctx);
     
+    // Extract original query text from source code to preserve formatting
+    const originalQueryText = this.extractOriginalQueryText(lineNumber, endLineNumber);
+    
     // Extract fields from the query
     const fields = SOQLParser.extractFields(queryText);
     
@@ -467,6 +460,7 @@ class SOQLUnusedFieldsVisitor extends ApexParserBaseVisitor<void> {
     
     this.soqlQueries.push({
       query: queryText,
+      originalQueryText,
       lineNumber,
       endLineNumber,
       methodName: this.currentMethodName,
@@ -493,6 +487,15 @@ class SOQLUnusedFieldsVisitor extends ApexParserBaseVisitor<void> {
   private getEndLineNumber(ctx: any): number {
     const token = ctx.stop;
     return token ? token.line : this.getLineNumber(ctx);
+  }
+
+  /**
+   * Extract original query text from source code preserving formatting
+   */
+  private extractOriginalQueryText(startLine: number, endLine: number): string {
+    const lines = this.apexCode.split('\n');
+    const queryLines = lines.slice(startLine - 1, endLine);
+    return queryLines.join(' ').trim();
   }
 }
 
